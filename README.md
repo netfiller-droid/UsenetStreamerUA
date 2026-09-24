@@ -1,16 +1,16 @@
-# UsenetStreamer
+# UsenetStreamerUA
 
 <p align="center">
   <img src="assets/icon.png" alt="UsenetStreamer logo" width="180" />
 </p>
 
+<p align="center"><strong>
+This is an original fork of sankets usenetstreamer with actually useragents of prowlarr 2.6.5.5623 and sabnzbd 5.1.3
+</p></strong>
+
 <p align="center">
   <strong>Your Usenet-powered bridge between Prowlarr/NZBHydra, NZBDav, and Stremio.</strong><br />
   Query your favorite indexers, stream directly over WebDAV, and manage it all from a friendly web dashboard.</p>
-
-<p align="center"><strong>
-This is an original fork of sankets usenetstreamer with actually useragents of prowlarr and sabnzbd.
-</p></strong>
 
 <p align="center">
   <a href="https://discord.gg/tUwNjXSZZN"><img src="https://img.shields.io/badge/Discord-Join-blue?logo=discord&logoColor=white" alt="Join Discord" /></a>
