@@ -9,7 +9,7 @@
   Query your favorite indexers, stream directly over WebDAV, and manage it all from a friendly web dashboard.</p>
 
 <p align="center">
-This ist an original fork of sankets usenetstreamer with actially useragents of prowlarr and sabnzbd.
+This ist an original fork of sankets usenetstreamer with actually useragents of prowlarr and sabnzbd.
 </p>
 
 <p align="center">
