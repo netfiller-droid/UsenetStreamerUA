@@ -7,19 +7,21 @@
 <p align="center">
   <strong>Your Usenet-powered bridge between Prowlarr/NZBHydra, NZBDav, and Stremio.</strong><br />
   Query your favorite indexers, stream directly over WebDAV, and manage it all from a friendly web dashboard.
+
+This ist an original fork of sankets usenetstreamer with actially useragents of prowlarr and sabnzbd.
 </p>
 
 <p align="center">
   <a href="https://discord.gg/tUwNjXSZZN"><img src="https://img.shields.io/badge/Discord-Join-blue?logo=discord&logoColor=white" alt="Join Discord" /></a>
   <a href="https://github.com/sponsors/Sanket9225"><img src="https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-ea4aaa?logo=githubsponsors&logoColor=white" alt="Sponsor on GitHub" /></a>
-  <a href="https://ghcr.io/sanket9225/usenetstreamer"><img src="https://img.shields.io/badge/Docker-ghcr.io%2Fsanket9225%2Fusenetstreamer-blue?logo=docker" alt="Docker image" /></a>
+  <a href="ghcr.io/netfiller-droid/usenetstreamerua"><img src="https://img.shields.io/badge/Docker-ghcr.io%2Fnetfiller-droid%2Fusenetstreamer-blue?logo=docker" alt="Docker image" /></a>
 </p>
 
 ---
 
 ## 🔗 Quick Links
 
-- **Docker image:** `ghcr.io/sanket9225/usenetstreamer:latest`
+- **Docker image:** `ghcr.io/netfiller-droid/usenetstreamerua:latest`
 - **Admin dashboard:** `https://your-addon-domain/<admin-token (ADDON_SHARED_SECRET)>/admin/`
 - **Manifest template:** `https://your-addon-domain/<stream-token>/manifest.json`
 - **Discord:** [Community chat](https://discord.gg/tUwNjXSZZN)
