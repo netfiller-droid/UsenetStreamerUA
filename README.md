@@ -9,10 +9,10 @@
   Query your favorite indexers, stream directly over WebDAV, and manage it all from a friendly web dashboard.</p>
 
 <p align="center">
-This ist an original fork of sankets usenetstreamer with actually useragents of prowlarr and sabnzbd.
+This is an original fork of sankets usenetstreamer with actually useragents of prowlarr and sabnzbd.
 </p>
 
-<p align="center">
+<p align="center"><strong>
   <a href="https://discord.gg/tUwNjXSZZN"><img src="https://img.shields.io/badge/Discord-Join-blue?logo=discord&logoColor=white" alt="Join Discord" /></a>
   <a href="https://github.com/sponsors/Sanket9225"><img src="https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-ea4aaa?logo=githubsponsors&logoColor=white" alt="Sponsor on GitHub" /></a>
   <a href="ghcr.io/netfiller-droid/usenetstreamerua:latest"><img src="https://img.shields.io/badge/Docker-ghcr.io%2Fnetfiller--droid%2Fusenetstreamerua-blue?logo=docker" alt="Docker image" /></a>
