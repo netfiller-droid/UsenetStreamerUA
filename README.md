@@ -15,7 +15,7 @@ This ist an original fork of sankets usenetstreamer with actially useragents of 
 <p align="center">
   <a href="https://discord.gg/tUwNjXSZZN"><img src="https://img.shields.io/badge/Discord-Join-blue?logo=discord&logoColor=white" alt="Join Discord" /></a>
   <a href="https://github.com/sponsors/Sanket9225"><img src="https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-ea4aaa?logo=githubsponsors&logoColor=white" alt="Sponsor on GitHub" /></a>
-  <a href="ghcr.io/netfiller-droid/usenetstreamerua"><img src="https://img.shields.io/badge/Docker-ghcr.io%2sanket9225%2Fusenetstreamer-blue?logo=docker" alt="Docker image" /></a>
+  <a href="ghcr.io/netfiller-droid/usenetstreamerua"><img src="https://img.shields.io/badge/Docker-ghcr.io%2Fnetfiller-droid%2Fusenetstreamer-blue?logo=docker" alt="Docker image" /></a>
 </p>
 
 ---
