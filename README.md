@@ -108,7 +108,7 @@ docker run -d --restart unless-stopped \
   -e ADDON_SHARED_SECRET=super-secret-token \
   -e CONFIG_DIR=/data/config \
   -v ~/usenetstreamer-config:/data/config \
-  ghcr.io/sanket9225/usenetstreamer:latest
+  ghcr.io/netfiller-droid/usenetstreamerua:latest
 ```
 
 #### Docker Compose
@@ -116,7 +116,7 @@ docker run -d --restart unless-stopped \
 ```yaml
 services:
   usenetstreamer:
-    image: ghcr.io/sanket9225/usenetstreamer:latest
+    image: ghcr.io/netfiller-droid/usenetstreamerua:latest
     container_name: usenetstreamer
     restart: unless-stopped
     ports:
