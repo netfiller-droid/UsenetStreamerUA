@@ -5,7 +5,11 @@
 </p>
 
 <p align="center"><strong>
-This is an original fork of sankets usenetstreamer with actually useragents of prowlarr 2.6.5.5623 and sabnzbd 5.1.3
+This is an original fork of sankets usenetstreamer with actually useragents of prowlarr 2.6.5.5623 and sabnzbd 5.1.3<br><br>
+  What is coming? The next step is the implentation for a custom UserAgent in webui for global use. <br><br>
+  prio 1: per-indexer<br>
+  prio 2: global custom<br>
+  prio 3: default hardcoded<br>
 </p></strong>
 
 <p align="center">
