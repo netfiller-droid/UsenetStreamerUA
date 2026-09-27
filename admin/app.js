@@ -859,12 +859,16 @@
         <summary>Advanced settings</summary>
         <div class="field-grid">
           <label>Search User-Agent
-            <input type="text" data-field="SEARCH_UA" placeholder="Prowlarr/2.4.0.5397 (ubuntu 22.04)" />
-            <span class="field-hint">User-Agent sent on Newznab API search calls. Leave blank to use the default.</span>
+            <input type="text" data-field="SEARCH_UA" maxlength="512"
+                   autocomplete="off" autocapitalize="off" spellcheck="false"
+                   placeholder="Prowlarr/2.4.0.5397 (ubuntu 22.04)" />
+            <span class="field-hint">User-Agent sent on Newznab API search calls. Leave blank to inherit the global / default User-Agent.</span>
           </label>
           <label>Download User-Agent
-            <input type="text" data-field="DOWNLOAD_UA" placeholder="SABnzbd/5.0.3" />
-            <span class="field-hint">User-Agent sent when downloading the NZB file (used by health checks and NZBDav uploads). Leave blank to use the default.</span>
+            <input type="text" data-field="DOWNLOAD_UA" maxlength="512"
+                   autocomplete="off" autocapitalize="off" spellcheck="false"
+                   placeholder="SABnzbd/5.0.3" />
+            <span class="field-hint">User-Agent sent when downloading the NZB file (used by health checks and NZBDav uploads). Leave blank to inherit the global / default User-Agent.</span>
           </label>
           <label>Indexer Proxy (Optional)
             <input type="text" data-field="PROXY" placeholder="socks5://gluetun:8388 or http://gluetun:8888" autocomplete="new-password" />
@@ -1104,7 +1108,7 @@
       if (apiKeyInput) {
         apiKeyInput.focus();
       }
-      setRowStatus(row, preset.description || 'Preset added — paste your API key to finish.', false);
+      setRowStatus(row, preset.description || 'Preset added — paste your API key to finish.', false);
     }
     if (newznabPresetSelect) {
       newznabPresetSelect.selectedIndex = 0;
@@ -1123,6 +1127,16 @@
   async function runConnectionTest(button) {
     const type = button?.dataset?.test;
     if (!type) return;
+
+    // Block the test on invalid UA overrides — the server would sanitize them
+    // anyway, but the user should see up-front why their UA "isn't working".
+    const uaError = validateAllUserAgents();
+    if (uaError) {
+      setTestStatus(type, uaError.message, true);
+      uaError.input.focus();
+      return;
+    }
+
     const originalText = button.textContent;
     setTestStatus(type, '', false);
     button.disabled = true;
@@ -1260,31 +1274,6 @@
     }
   }
 
-  // ... (existing functions)
-
-
-  // Initialization
-  function init() {
-    const storedToken = getStoredToken();
-    if (storedToken) {
-      tokenInput.value = storedToken;
-    }
-
-    if (loadButton) {
-      loadButton.addEventListener('click', () => {
-        setStoredToken(tokenInput.value);
-        loadConfiguration().then(() => {
-          setupPatternPreview(); // Init preview after load
-        });
-      });
-    }
-
-    // ... other listeners ...
-    if (saveButton) saveButton.addEventListener('click', handleSave);
-
-    setupSectionCollapsers();
-  }
-
   // Add a chevron to each top-level <section.group> header that toggles
   // collapse state. State persists in localStorage so users don't have to
   // re-collapse their long sections on every reload.
@@ -1360,21 +1349,6 @@
       });
     });
   }
-
-  // Hook into init
-  // To avoid rewriting init completely, I will just call init() at the end wrapped in existing logic?
-  // Wait, the file ends with `init(); })();`.
-  // I need to find the `init` function definition and append `setupPatternPreview` call inside `loadConfiguration` success path, OR just append `setupPatternPreview` elsewhere.
-  // Actually, I can just append `setupPatternPreview` logic and hook it up.
-
-  // Let's modify `loadConfiguration` to call `setupPatternPreview`?
-  // Or just call it.
-  // The easiest way is to rewrite `init` at the end of the file.
-  // Or better, since `loadConfiguration` populates the form, I should call it there.
-
-  // Actually, I will replace the end of the file.
-
-  // Let's find where `init` is defined. It is likely near the end.
 
   function setCopyButtonState(enabled) {
     if (!copyManifestButton) return;
@@ -1853,10 +1827,72 @@
     });
   }
 
+  // User-Agent overrides must be printable ASCII — control chars trigger
+  // ERR_INVALID_CHAR on the Node side, and non-ASCII (umlauts, emojis) can
+  // be silently stripped by sanitizeUserAgent() in src/utils/userAgent.js or
+  // rejected outright by strict indexers. We validate client-side so the user
+  // sees a clear error before saving, rather than a silent mutation later.
+  //
+  // Order matters: per-indexer fields are the ones actually sent on the wire
+  // when set, so they're checked first and surfaced by row label. Global
+  // fields (USER_AGENT_SEARCH / USER_AGENT_DOWNLOAD) are the fallback and
+  // checked second. Both are empty-safe — blank fields mean "inherit".
+  const UA_PRINTABLE_ASCII = /^[\x20-\x7E]+$/;
+
+  function validateUserAgentField(input, label) {
+    if (!input) return null;
+    const raw = input.value || '';
+    const trimmed = raw.trim();
+    // Normalize so collectFormValues() persists the trimmed value. A leading
+    // or trailing space would otherwise diverge from what the server sees
+    // after sanitizeUserAgent() trims it.
+    if (raw !== trimmed) input.value = trimmed;
+    if (!trimmed) return null;
+    if (!UA_PRINTABLE_ASCII.test(trimmed)) {
+      return {
+        message: `${label} may only contain printable ASCII characters (no emojis, umlauts, or control characters).`,
+        input,
+      };
+    }
+    return null;
+  }
+
+  function validateAllUserAgents() {
+    // 1) Per-indexer overrides — the ones that actually win when set.
+    const rowUaInputs = configForm.querySelectorAll('[data-field="SEARCH_UA"], [data-field="DOWNLOAD_UA"]');
+    for (const input of rowUaInputs) {
+      const rowLabel = input.closest('.newznab-row')?.querySelector('[data-row-label]')?.textContent?.trim() || 'Indexer';
+      const fieldLabel = input.dataset.field === 'SEARCH_UA' ? 'Search User-Agent' : 'Download User-Agent';
+      const err = validateUserAgentField(input, `${rowLabel} — ${fieldLabel}`);
+      if (err) {
+        // Reveal the collapsed Advanced section so the user can see the field.
+        const details = input.closest('details.advanced-settings');
+        if (details) details.open = true;
+        return err;
+      }
+    }
+    // 2) Global fallback fields.
+    for (const name of ['USER_AGENT_SEARCH', 'USER_AGENT_DOWNLOAD']) {
+      const input = configForm.querySelector(`[name="${name}"]`);
+      const err = validateUserAgentField(input, name);
+      if (err) return err;
+    }
+    return null;
+  }
+
   async function saveConfiguration(event) {
     event.preventDefault();
     saveStatus.textContent = '';
     if (currentProfileSlug !== null) { return saveProfileConfiguration(); }
+
+    // Validate User-Agent fields before saving. See validateAllUserAgents()
+    // for the precedence order (per-indexer first, then global).
+    const uaError = validateAllUserAgents();
+    if (uaError) {
+      saveStatus.textContent = `Error: ${uaError.message}`;
+      uaError.input.focus();
+      return;
+    }
 
     // Block save if any Zyclops is enabled but NNTP host is empty
     if (hasAnyZyclopsEnabled()) {
@@ -2289,7 +2325,6 @@
     qualityCheckboxes.forEach((checkbox) => {
       checkbox.addEventListener('change', () => {
         syncQualityHiddenInput();
-        syncResolutionLimitDisabledStates();
         syncSaveGuard();
       });
     });
