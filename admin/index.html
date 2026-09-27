@@ -221,6 +221,37 @@
           </div>
         </section>
 
+        <!-- ================= User-Agent Overrides (global) ================= -->
+        <section class="group" id="userAgentOverridesGroup">
+          <h3>User-Agent Overrides (Optional)</h3>
+          <p class="hint">
+            Override the User-Agent strings the addon sends on outbound HTTP requests.
+            Leave a field blank to use the built-in default from
+            <code>src/utils/userAgent.js</code>. Only when you enter a value here does it
+            take effect — otherwise the defaults apply.
+            <br>
+            <strong>Precedence:</strong> per-indexer overrides (each Direct Newznab row's
+            “Advanced settings” → Search/Download User-Agent) take priority over these
+            global values, which in turn override the built-in defaults.
+            Only printable ASCII is allowed.
+          </p>
+          <div class="field-grid">
+            <label>Search User-Agent
+              <input name="USER_AGENT_SEARCH" type="text" maxlength="512"
+                     autocomplete="off" autocapitalize="off" spellcheck="false"
+                     placeholder="Prowlarr/2.6.5.5623 (ubuntu 24.04)" />
+              <span class="field-hint">Sent when querying indexers / managers (Prowlarr, NZBHydra, direct Newznab). Leave blank to use the default search UA.</span>
+            </label>
+            <label>Download User-Agent
+              <input name="USER_AGENT_DOWNLOAD" type="text" maxlength="512"
+                     autocomplete="off" autocapitalize="off" spellcheck="false"
+                     placeholder="SABnzbd/5.1.3" />
+              <span class="field-hint">Sent when fetching NZB files (health checks, NZBDav uploads). Leave blank to use the default download UA.</span>
+            </label>
+          </div>
+        </section>
+        <!-- ================= End User-Agent Overrides ================= -->
+
         <section class="group" data-profile-section="Sorting &amp; Filters">
           <h3>Result Sorting &amp; Filters</h3>
           <div class="field-grid">
