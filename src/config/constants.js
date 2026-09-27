@@ -56,6 +56,9 @@ const ADMIN_CONFIG_KEYS = [
   'TMDB_SEARCH_LANGUAGES',
   'TVDB_ENABLED',
   'TVDB_API_KEY',
+  // Benutzerdefinierte User-Agent-Overrides (leer = Standard aus userAgent.js)
+  'USER_AGENT_SEARCH',
+  'USER_AGENT_DOWNLOAD',
 ];
 
 const VIDEO_EXTENSIONS = new Set([
