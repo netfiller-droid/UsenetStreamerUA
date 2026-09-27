@@ -1,10 +1,10 @@
 const axios = require('axios');
 const { triageNzbs } = require('./index');
-const { getDefaultDownloadUserAgent } = require('../../utils/userAgent');
 const { getDownloadUserAgentForIndexer, getProxyForIndexer } = require('../newznab');
 const { getManagerProxy } = require('../indexer');
 const { proxiedGet } = require('../../utils/proxyAgent');
 const diskNzbCache = require('../../cache/diskNzbCache');
+const { getDefaultDownloadUserAgent } = require('../../utils/userAgent');
 
 const DEFAULT_TIME_BUDGET_MS = 40000;
 const DEFAULT_MAX_CANDIDATES = 25;
@@ -172,6 +172,13 @@ async function triageAndRank(nzbResults, options = {}) {
   const startTs = Date.now();
   const timeBudgetMs = options.timeBudgetMs ?? DEFAULT_TIME_BUDGET_MS;
   const preferredSizeBytes = Number.isFinite(options.preferredSizeBytes) ? options.preferredSizeBytes : null;
+  // Reserved for future indexer-based ranking. The search pipeline may pass
+  // options.preferredIndexerIds, but ranking is intentionally size-only today
+  // (see rankCandidates below). The paid-indexer prioritization the WebUI
+  // exposes is currently enforced via allowedIndexerIds (hard filter) — see
+  // candidateMatchesIndexerSet. Keeping the option surface stable here so that
+  // enabling preferred-indexer ranking later is a one-function change.
+  // eslint-disable-next-line no-unused-vars
   const preferredIndexerSet = normalizeIndexerSet(options.preferredIndexerIds);
   const serializedIndexerSet = normalizeIndexerSet(options.serializedIndexerIds);
   const allowedIndexerSet = normalizeIndexerSet(options.allowedIndexerIds);
@@ -190,7 +197,10 @@ async function triageAndRank(nzbResults, options = {}) {
   const constrainedCandidates = allowedIndexerSet.size > 0
     ? builtCandidates.filter((candidate) => candidateMatchesIndexerSet(candidate, allowedIndexerSet))
     : builtCandidates;
-  const candidates = rankCandidates(constrainedCandidates, preferredSizeBytes, preferredIndexerSet);
+  // NOTE: ranking is intentionally size-only today (no indexer-based
+  // priority). If/when preferred-indexer ranking is added, wire
+  // preferredIndexerSet into rankCandidates and update the call here.
+  const candidates = rankCandidates(constrainedCandidates, preferredSizeBytes);
   const uniqueCandidates = [];
   const seenTitles = new Set();
   candidates.forEach((candidate) => {
@@ -362,6 +372,8 @@ async function triageAndRank(nzbResults, options = {}) {
             abortController.abort();
           }, downloadTimeoutMs);
 
+          // Defensive: fall back to the global default if the per-indexer
+          // resolver ever returns an empty string (it shouldn't today).
           const downloadUa = getDownloadUserAgentForIndexer(candidate.indexerId || candidate.indexerName)
             || getDefaultDownloadUserAgent();
           // Same proxy resolution as the NZBDav grab: matched Direct Newznab
