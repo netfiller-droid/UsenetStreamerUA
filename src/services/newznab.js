@@ -349,9 +349,19 @@ async function fetchNewznabCaps(config, options = {}) {
     timeout: options.timeoutMs || 12000,
     responseType: 'text',
     validateStatus: () => true,
+    headers: {
+      // Per-indexer override wins; fallback to the global default (which in
+      // turn honours WebUI USER_AGENT_SEARCH). Mirrors fetchIndexerResults()
+      // so all Newznab HTTP calls from this module send the same UA.
+      'User-Agent': config.searchUserAgent || getDefaultSearchUserAgent(),
+      Accept: '*/*',
+      'Accept-Encoding': 'gzip, deflate',
+    },
     proxy: false,
     ...(buildProxyAgents(config.proxy, requestUrl) || {}),
   });
+  const contentType = response.headers?.['content-type'];
+  const body = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
   if (response.status === 401 || response.status === 403) {
     const protectionBlock = detectProtectionBlock(response.status, contentType, body);
     if (protectionBlock) {
@@ -362,7 +372,6 @@ async function fetchNewznabCaps(config, options = {}) {
   if (response.status >= 400) {
     throw new Error(`HTTP ${response.status}`);
   }
-  const body = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
   const explicitError = extractErrorFromBody(body);
   if (explicitError) {
     throw new Error(explicitError);
@@ -563,10 +572,52 @@ function filterUsableConfigs(configs = [], { requireEnabled = true, requireApiKe
   });
 }
 
+// Shared helper: build the list of identifiers a lookup can match against.
+// Includes the numeric/slug forms (id, ordinal) so callers passing either the
+// dedupeKey/slug OR the raw NEWZNAB_*_NN id/ordinal still resolve correctly.
+function buildIndexerLookupCandidates(config) {
+  return [
+    config.dedupeKey,
+    config.slug,
+    config.displayName,
+    config.name,
+    config.id,
+    String(config.ordinal),
+  ]
+    .filter(Boolean)
+    .map((value) => String(value).toLowerCase());
+}
+
+/**
+ * Resolve the configured search User-Agent for a given indexer identifier.
+ * The identifier can be a slug/dedupeKey (preferred), a display name, the
+ * numeric NEWZNAB id ("01"), or the ordinal (1). If no matching indexer is
+ * found or it has no per-indexer override, returns the global default
+ * (which honours USER_AGENT_SEARCH from the WebUI when set).
+ */
+function getSearchUserAgentForIndexer(identifier) {
+  const fallback = getDefaultSearchUserAgent();
+  if (!identifier) return fallback;
+  const target = String(identifier).trim().toLowerCase();
+  if (!target) return fallback;
+  try {
+    const configs = buildIndexerConfigs(process.env, { includeEmpty: false });
+    for (const config of configs) {
+      const candidates = buildIndexerLookupCandidates(config);
+      if (candidates.includes(target) && config.searchUserAgent) {
+        return config.searchUserAgent;
+      }
+    }
+  } catch (_) {
+    // ignore — fall back to default
+  }
+  return fallback;
+}
+
 /**
  * Resolve the configured download User-Agent for a given indexer identifier.
- * The identifier can be a slug/dedupeKey (preferred) or a display name. If no
- * matching indexer is found or it has no override, returns the global default.
+ * Same lookup semantics as getSearchUserAgentForIndexer() but for the
+ * download UA (honours USER_AGENT_DOWNLOAD from the WebUI when set).
  */
 function getDownloadUserAgentForIndexer(identifier) {
   const fallback = getDefaultDownloadUserAgent();
@@ -576,9 +627,7 @@ function getDownloadUserAgentForIndexer(identifier) {
   try {
     const configs = buildIndexerConfigs(process.env, { includeEmpty: false });
     for (const config of configs) {
-      const candidates = [config.dedupeKey, config.slug, config.displayName, config.name]
-        .filter(Boolean)
-        .map((value) => String(value).toLowerCase());
+      const candidates = buildIndexerLookupCandidates(config);
       if (candidates.includes(target) && config.downloadUserAgent) {
         return config.downloadUserAgent;
       }
@@ -590,8 +639,11 @@ function getDownloadUserAgentForIndexer(identifier) {
 }
 
 /**
- * Resolve the configured proxy URL for a Direct Newznab indexer identifier
- * (slug/dedupeKey/displayName/name). Returns a MATCHED-SIGNAL:
+ * Resolve the configured proxy URL for a Direct Newznab indexer identifier.
+ * Same lookup semantics as the UA resolvers — accepts slug/dedupeKey, display
+ * name, name, numeric id, or ordinal.
+ *
+ * Returns a MATCHED-SIGNAL:
  *   - a string (possibly '') when an indexer matches the identifier — '' means
  *     that indexer has no proxy and should connect directly.
  *   - null when NO Direct Newznab indexer matches — the caller treats this as
@@ -606,9 +658,7 @@ function getProxyForIndexer(identifier) {
   try {
     const configs = buildIndexerConfigs(process.env, { includeEmpty: false });
     for (const config of configs) {
-      const candidates = [config.dedupeKey, config.slug, config.displayName, config.name]
-        .filter(Boolean)
-        .map((value) => String(value).toLowerCase());
+      const candidates = buildIndexerLookupCandidates(config);
       if (candidates.includes(target)) {
         return config.proxy || '';
       }
@@ -665,13 +715,13 @@ function applyTokenToParams(token, params) {
 
 function buildSearchParams(plan) {
   const params = {};
-  
+
   // Determine if this is an ID-based search (has imdbid, tmdbid, or tvdbid tokens)
   const hasIdToken = Array.isArray(plan?.tokens) && plan.tokens.some(token => {
     const match = token?.match(/^\{([^:]+):/);
     return match && ['imdbid', 'tmdbid', 'tvdbid'].includes(match[1].trim().toLowerCase());
   });
-  
+
   // For movie/TV searches:
   // - Use t=movie/tvsearch ONLY if we have ID tokens (imdbid, tmdbid, tvdbid)
   // - Otherwise use t=search with category filters (Newznab standard: https://newznab.readthedocs.io/en/latest/misc/api.html#predefined-categories)
@@ -694,7 +744,7 @@ function buildSearchParams(plan) {
   } else {
     params.t = 'search';
   }
-  
+
   if (Array.isArray(plan?.tokens)) {
     plan.tokens.forEach((token) => applyTokenToParams(token, params));
   }
@@ -1086,6 +1136,14 @@ async function testNewznabCaps(config, options = {}) {
     timeout: options.timeoutMs || 12000,
     responseType: 'text',
     validateStatus: () => true,
+    headers: {
+      // Per-indexer override wins; fallback to the global default (which in
+      // turn honours WebUI USER_AGENT_SEARCH). Mirrors fetchIndexerResults()
+      // so test-connection requests use the same UA as real searches.
+      'User-Agent': config.searchUserAgent || getDefaultSearchUserAgent(),
+      Accept: '*/*',
+      'Accept-Encoding': 'gzip, deflate',
+    },
     proxy: false,
     ...(buildProxyAgents(config.proxy, requestUrl) || {}),
   });
@@ -1137,7 +1195,9 @@ module.exports = {
   getNewznabConfigsFromValues,
   filterUsableConfigs,
   getDownloadUserAgentForIndexer,
+  getSearchUserAgentForIndexer,
   getProxyForIndexer,
+  buildIndexerLookupCandidates,
   searchNewznabIndexers,
   testNewznabCaps,
   validateNewznabSearch,
