@@ -242,7 +242,11 @@ async function addNzbToNzbdav({ downloadUrl, cachedEntry = null, category, jobLa
   // then upload via addfile. This avoids NZBDav fetching the URL with its own UA.
   console.log(`[NZBDAV] Downloading NZB for addfile upload (${jobLabelDisplay})`);
   try {
-    const downloadUa = (indexerId && getDownloadUserAgentForIndexer(indexerId)) || getDefaultDownloadUserAgent();
+    // Defensive: fall back to the global default if the per-indexer resolver
+    // ever returns an empty string (it shouldn't today, but this guards
+    // against future refactors).
+    const downloadUa = (indexerId ? getDownloadUserAgentForIndexer(indexerId) : null)
+      || getDefaultDownloadUserAgent();
     const dlConfig = {
       responseType: 'arraybuffer',
       timeout: 30000,
