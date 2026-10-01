@@ -5,8 +5,11 @@
 </p>
 
 <p align="center"><strong>
-This is an original fork of sankets usenetstreamer with this changes:</strong></p>
+This is an original fork of sankets usenetstreamer with this changes:
+</strong></p>
+
 <code>
+
 Added
 
     Added GitHub Container Registry publishing via .github/workflows/docker-publish.yml.
@@ -37,6 +40,7 @@ Compatibility
     Axios remains pinned to 1.17.0.
     Blank User-Agent overrides continue to use the built-in defaults.
     Existing configurations require no migration.
+    
 </Code>
 
 <p align="center">
