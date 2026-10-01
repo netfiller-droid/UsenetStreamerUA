@@ -2,7 +2,31 @@
 
 All notable changes in this fork are documented here.
 
-This fork keeps the upstream `1.8.4` baseline and uses `1.8.4-ua.2` to distinguish fork-specific changes.
+This fork keeps the upstream `1.8.4` baseline and uses `1.8.4-ua.X` to distinguish fork-specific changes.
+
+## [1.8.4-ua.3] - 2026-10-01
+
+### Changed
+
+- Simplified admin token hint in the index.html (removed warning redundancy).
+- Revised User-Agent Overrides section text for improved clarity.
+- Removed migration notice for versions before v1.7.6 from admin index.
+
+### Fixed
+
+- Fixed typo in User-Agent section heading.
+
+### Compatibility
+
+- Axios remains pinned to `1.17.0`.
+- No breaking changes; existing configurations remain valid.
+
+### Files changed during this release window
+
+- `admin/index.html`
+- `README.md` (User-Agent section revisions)
+
+---
 
 ## [1.8.4-ua.2] - 2026-09-27
 
@@ -40,16 +64,4 @@ This fork keeps the upstream `1.8.4` baseline and uses `1.8.4-ua.2` to distingui
 - Blank User-Agent overrides continue to use the built-in defaults.
 - Existing configurations require no migration.
 
-### Files changed during this release window
-
-- `.github/workflows/docker-publish.yml`
-- `README.md`
-- `admin/app.js`
-- `admin/index.html`
-- `package.json`
-- `server.js`
-- `src/config/constants.js`
-- `src/services/newznab.js`
-- `src/services/nzbdav.js`
-- `src/services/triage/runner.js`
-- `src/utils/userAgent.js`
+**Full Changelog**: https://github.com/netfiller-droid/UsenetStreamerUA/compare/1.8.4.1...v1.8.4-ua.2
