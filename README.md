@@ -8,7 +8,7 @@
 This is an original fork of sankets usenetstreamer with this changes:
 </strong>
 
-Added
+<center>Added
 
     Added GitHub Container Registry publishing via .github/workflows/docker-publish.yml.
     Added global USER_AGENT_SEARCH and USER_AGENT_DOWNLOAD fields to the admin dashboard.
@@ -39,7 +39,7 @@ Compatibility
     Blank User-Agent overrides continue to use the built-in defaults.
     Existing configurations require no migration.
     
-</p>
+</center></p>
 
 <p align="center">
   <strong>Your Usenet-powered bridge between Prowlarr/NZBHydra, NZBDav, and Stremio.</strong><br />
