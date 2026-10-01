@@ -6,9 +6,7 @@
 
 <p align="center"><strong>
 This is an original fork of sankets usenetstreamer with this changes:
-</strong></p>
-
-<code>
+</strong>
 
 Added
 
@@ -41,7 +39,7 @@ Compatibility
     Blank User-Agent overrides continue to use the built-in defaults.
     Existing configurations require no migration.
     
-</Code>
+</p>
 
 <p align="center">
   <strong>Your Usenet-powered bridge between Prowlarr/NZBHydra, NZBDav, and Stremio.</strong><br />
