@@ -6,7 +6,8 @@
 
 <p align="center"><strong>
 This is an original fork of sankets usenetstreamer with this changes:<br><br>
-<code>Added
+<code>
+Added
 
     Added GitHub Container Registry publishing via .github/workflows/docker-publish.yml.
     Added global USER_AGENT_SEARCH and USER_AGENT_DOWNLOAD fields to the admin dashboard.
