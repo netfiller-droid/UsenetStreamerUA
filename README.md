@@ -5,7 +5,7 @@
 </p>
 
 <p align="center"><strong>
-This is an original fork of sankets usenetstreamer with this changes:<br><br></strong></p>
+This is an original fork of sankets usenetstreamer with this changes:</strong></p>
 <code>
 Added
 
@@ -37,7 +37,7 @@ Compatibility
     Axios remains pinned to 1.17.0.
     Blank User-Agent overrides continue to use the built-in defaults.
     Existing configurations require no migration.
-</Code><br><br>
+</Code>
 
 <p align="center">
   <strong>Your Usenet-powered bridge between Prowlarr/NZBHydra, NZBDav, and Stremio.</strong><br />
