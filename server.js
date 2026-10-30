@@ -122,7 +122,7 @@ setInterval(() => {
 
 const app = express();
 let currentPort = Number(process.env.PORT || 7000);
-const ADDON_VERSION = '1.8.4-ua.3';
+const ADDON_VERSION = '1.8.4-ua.4';
 const DEFAULT_ADDON_NAME = 'UsenetStreamer';
 let serverInstance = null;
 const SERVER_HOST = '0.0.0.0';
@@ -1291,6 +1291,8 @@ const ADMIN_CONFIG_KEYS = [
   'TMDB_SEARCH_MODE',
   'TVDB_ENABLED',
   'TVDB_API_KEY',
+  'USER_AGENT_SEARCH',
+  'USER_AGENT_DOWNLOAD',
 ];
 
 ADMIN_CONFIG_KEYS.push('NEWZNAB_ENABLED', 'NEWZNAB_FILTER_NZB_ONLY', ...NEWZNAB_NUMBERED_KEYS);

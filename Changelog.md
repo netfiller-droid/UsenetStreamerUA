@@ -65,3 +65,15 @@ This fork keeps the upstream `1.8.4` baseline and uses `1.8.4-ua.X` to distingui
 - Existing configurations require no migration.
 
 **Full Changelog**: https://github.com/netfiller-droid/UsenetStreamerUA/compare/1.8.4.1...v1.8.4-ua.2
+
+## [1.8.4-ua.4] - 2026-10-30
+
+### Fixed
+
+- Fixed global User-Agent overrides (`USER_AGENT_SEARCH`/`USER_AGENT_DOWNLOAD`) not persisting when saved via the admin panel; added them to server config keys so they are written to runtime-env.
+
+### Compatibility
+
+- Axios remains pinned to `1.17.0`.
+- Precedence unchanged: per-indexer override → global override → built-in default.
+
